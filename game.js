@@ -203,7 +203,7 @@
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = () => resolve(null);
-      img.src = 'title.webp';
+      img.src = 'TITLE.png';
     });
   }
 
