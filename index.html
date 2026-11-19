@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pocket Rockkets · In cinemas Dec 11</title>
-  <meta name="description" content="One gamble. Two friends. A chance to rewrite their destiny. Watch the Pocket Rockkets teaser, deal yourself a hand and try to land pocket rockets.">
+  <meta name="description" content="One gamble. Two friends. A chance to rewrite their destiny. Watch the Pocket Rockkets teaser, try your luck at the card game and land pocket rockets.">
   <meta name="theme-color" content="#1a0508">
   <meta property="og:title" content="Pocket Rockkets · In cinemas Dec 11">
-  <meta property="og:description" content="Watch the teaser, then deal yourself a hand. Two aces unlock a surprise gift.">
+  <meta property="og:description" content="Watch the teaser, then try your luck. Two Aces unlock a surprise.">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a050a'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e9b949'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700&family=Oleo+Script:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="title.webp">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,7 +26,7 @@
     </a>
     <nav class="nav-links" aria-label="Main">
       <a href="#teaser">Teaser</a>
-      <a href="#play">Deal a hand</a>
+      <a href="#play">Try your luck</a>
       <a href="#instagram">Instagram</a>
       <a href="#crew">Cast and crew</a>
     </nav>
@@ -48,12 +49,13 @@
         <span class="dc-corner dc-br">A<i>♠</i></span>
       </div>
 
-      <h1 class="title" id="film-title" aria-label="Pocket Rockkets">
-        <span class="line l1" aria-hidden="true"><span class="t-back">Pocket</span><span class="t-front">Pocket</span></span>
-        <span class="line l2" aria-hidden="true"><span class="t-back">Rockkets</span><span class="t-front">Rockkets</span></span>
+      <h1 class="title" id="film-title">
+        <img src="title.webp" width="339" height="202" alt="Pocket Rockkets" fetchpriority="high">
       </h1>
 
       <p class="tagline">One gamble. Two friends. A chance to rewrite their destiny.</p>
+
+      <p class="watch-note">Watch the teaser to understand the movie's world firsthand.</p>
 
       <div class="frame">
         <div class="player" id="player">
@@ -68,21 +70,39 @@
         </div>
       </div>
 
-      <div class="hero-actions">
-        <a class="btn btn-gold" href="#play">Deal me in</a>
-        <a class="btn btn-ghost" href="https://youtu.be/T3EZyINfUwg" target="_blank" rel="noopener">Watch on YouTube</a>
-      </div>
       <p class="blurb">Ee sari Bomma <s>blockbuster</s> Jackpot eh!</p>
     </section>
 
     <!-- DECK GAME -->
     <section class="band play" id="play" aria-labelledby="play-title">
       <div class="band-head">
-        <h2 class="h-chrome" id="play-title">Deal yourself in</h2>
-        <p class="lede">Two aces is called pocket rockets, the best hand you can be dealt in poker. Press the button, get two cards from a freshly shuffled deck, and try to land them. Pocket rockets unlock a surprise gift.</p>
+        <h2 class="h-chrome" id="play-title">Try your luck!</h2>
+        <p class="lede">Land pocket rockets, which means two Aces, and a surprise unlocks. Press the button to be dealt two cards from a freshly shuffled deck.</p>
       </div>
 
       <div class="table" id="table">
+        <div class="hand" id="hand">
+          <div class="card" id="card0" role="img" aria-label="Face-down card">
+            <div class="card-in">
+              <div class="back"><span aria-hidden="true">♠♥</span></div>
+              <div class="face"></div>
+            </div>
+          </div>
+          <div class="card" id="card1" role="img" aria-label="Face-down card">
+            <div class="card-in">
+              <div class="back"><span aria-hidden="true">♠♥</span></div>
+              <div class="face"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="readout" aria-live="polite" aria-atomic="true">
+          <p class="status" id="status" data-tone="idle">Press the button to deal. Two Aces unlock your surprise.</p>
+          <p class="handname" id="handname">&nbsp;</p>
+        </div>
+
+        <button class="btn btn-gold btn-deal" id="dealBtn" type="button">Deal my hand</button>
+
         <div class="gift-row">
           <div class="gift-box" id="giftBox" aria-hidden="true">
             <svg viewBox="0 0 80 80" width="72" height="72">
@@ -102,37 +122,15 @@
             </svg>
           </div>
           <div class="gift-copy">
-            <p class="gift-title" id="giftTitle">Surprise gift: locked</p>
-            <p class="gift-sub" id="giftSub">Land two aces in one deal to open it.</p>
+            <p class="gift-title" id="giftTitle">Your surprise is locked</p>
+            <p class="gift-sub" id="giftSub">Land two Aces in one deal to unlock it.</p>
           </div>
           <div class="meter" id="meter" aria-hidden="true">
             <span class="slot" data-slot="0">A</span>
             <span class="slot" data-slot="1">A</span>
           </div>
         </div>
-
-        <div class="hand" id="hand">
-          <div class="card" id="card0" role="img" aria-label="Face-down card">
-            <div class="card-in">
-              <div class="back"><span aria-hidden="true">♠♥</span></div>
-              <div class="face"></div>
-            </div>
-          </div>
-          <div class="card" id="card1" role="img" aria-label="Face-down card">
-            <div class="card-in">
-              <div class="back"><span aria-hidden="true">♠♥</span></div>
-              <div class="face"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="readout" aria-live="polite" aria-atomic="true">
-          <p class="status" id="status" data-tone="idle">Press the button. Two aces open your gift.</p>
-          <p class="handname" id="handname">&nbsp;</p>
-        </div>
-
-        <button class="btn btn-gold btn-deal" id="dealBtn" type="button">Deal my hand</button>
-        <button class="linkbtn" id="reopenGift" type="button" hidden>Open my gift again</button>
+        <button class="linkbtn" id="reopenGift" type="button" hidden>Open my surprise again</button>
 
         <dl class="stats">
           <div><dt>Hands dealt</dt><dd id="sDealt">0</dd></div>
@@ -225,7 +223,7 @@
 
   <dialog class="gift" id="gift" aria-labelledby="giftHead">
     <form method="dialog" class="gift-close"><button aria-label="Close">✕</button></form>
-    <h3 id="giftHead" class="gift-head">Pocket rockets. Gift unlocked.</h3>
+    <h3 id="giftHead" class="gift-head">Pocket rockets. Surprise unlocked.</h3>
     <img id="passImg" class="pass-img" alt="Your Jackpot pass with the two aces you were dealt">
     <p class="gift-msg" id="giftMsg"></p>
     <div class="gift-actions">

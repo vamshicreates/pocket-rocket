@@ -7,7 +7,7 @@
 
   /* ---- Edit the gift here ------------------------------------------------ */
   const GIFT = {
-    head: 'Pocket rockets. Gift unlocked.',
+    head: 'Pocket rockets. Surprise unlocked.',
     message: 'Save your Jackpot pass and tag @pocketrockkets when you share it. Show them the two aces you were dealt.',
     ctaLabel: 'Follow @pocketrockkets',
     ctaUrl: 'https://www.instagram.com/pocketrockkets/',
@@ -59,10 +59,10 @@
 
   function verdict(a, b) {
     const aces = (a.r === 'A') + (b.r === 'A');
-    if (aces === 2) return { tone: 'win', aces, text: 'Pocket rockets! Two aces. Your gift is unlocked.' };
-    if (aces === 1) return { tone: 'near', aces, text: 'One ace. One more and your gift opens.' };
+    if (aces === 2) return { tone: 'win', aces, text: 'Pocket rockets! Two Aces. Your surprise is unlocked.' };
+    if (aces === 1) return { tone: 'near', aces, text: 'One Ace. One more and your surprise unlocks.' };
     if (a.r === b.r) return { tone: 'miss', aces, text: 'A pair of ' + RANK_PLURAL[a.r] + '. Strong, but not the rockets.' };
-    return { tone: 'miss', aces, text: 'No aces this time. Shuffle and deal again.' };
+    return { tone: 'miss', aces, text: 'No Aces this time. Shuffle and deal again.' };
   }
 
   const api = { freshDeck, shuffle, dealTwo, verdict, randInt };
@@ -96,8 +96,8 @@
   function paintGift() {
     const open = !!state.unlocked;
     giftBox.classList.toggle('open', open);
-    giftTitle.textContent = open ? 'Surprise gift: unlocked' : 'Surprise gift: locked';
-    giftSub.textContent = open ? 'You hit pocket rockets. Your Jackpot pass is waiting.' : 'Land two aces in one deal to open it.';
+    giftTitle.textContent = open ? 'Your surprise is unlocked' : 'Your surprise is locked';
+    giftSub.textContent = open ? 'You hit pocket rockets. Your Jackpot pass is waiting.' : 'Land two Aces in one deal to unlock it.';
     reopen.hidden = !open;
   }
   function lightSlots(n) { slots.forEach((s, i) => s.classList.toggle('lit', i < n)); }
@@ -198,7 +198,16 @@
   }
   reopen.addEventListener('click', openGift);
 
-  async function drawPass() {
+  function loadTitle() {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = 'title.webp';
+    });
+  }
+
+  async function drawPass(useImage = true) {
     const W = 1080, H = 1350;
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
@@ -228,8 +237,16 @@
       x.lineWidth = size * 0.17; x.strokeStyle = '#d9a23a'; x.strokeText(t, W / 2, y);
       x.fillStyle = chrome(y - size, y); x.fillText(t, W / 2, y);
     };
-    title('Pocket', 250, 170);
-    title('Rockkets', 405, 170);
+    const logo = useImage ? await loadTitle() : null;
+    if (logo) {
+      const lw = 760, lh = lw * logo.naturalHeight / logo.naturalWidth;
+      x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 30; x.shadowOffsetY = 12;
+      x.drawImage(logo, (W - lw) / 2, 120, lw, lh);
+      x.shadowColor = 'transparent';
+    } else {
+      title('Pocket', 250, 170);
+      title('Rockkets', 405, 170);
+    }
 
     // the two aces that were dealt
     const pass = state.pass || [{ r: 'A', s: 'S' }, { r: 'A', s: 'H' }];
@@ -269,7 +286,12 @@
     x.fillStyle = '#c9a99a';
     x.font = '500 32px "Bricolage Grotesque", sans-serif';
     x.fillText(GIFT.releaseLine + '  ·  @pocketrockkets', W / 2, 1262);
-    return c.toDataURL('image/png');
+    try {
+      return c.toDataURL('image/png');
+    } catch (e) {
+      // opened from file:// the image taints the canvas; redraw with the text title
+      return useImage ? drawPass(false) : '';
+    }
   }
 
   function coins() {
