@@ -19,10 +19,10 @@
 
   var W = 1080;
   var LAYOUTS = {
-    story: { H: 1920, logoW: 780, logoY: 110, cardW: 380, cardH: 532, cardCY: 975, wheelCY: 940,
-             headY: 1430, headSize: 128, tagY: 1520, tagSize: 38, dateY: 1700, handleY: 1772, makeY: 1822 },
-    feed:  { H: 1350, logoW: 500, logoY: 92, cardW: 280, cardH: 392, cardCY: 612, wheelCY: 640,
-             headY: 968, headSize: 92, tagY: 1032, tagSize: 30, dateY: 1158, handleY: 1212, makeY: 1254 }
+    story: { H: 1920, logoW: 780, logoY: 110, cardW: 410, cardH: 574, cardCY: 1115, wheelCY: 1030,
+             tagSize: 38, partnerY: 1565, partnerSize: 112, dateY: 1690, handleY: 1762, makeY: 1812 },
+    feed:  { H: 1350, logoW: 520, logoY: 92, cardW: 336, cardH: 470, cardCY: 702, wheelCY: 700,
+             tagSize: 30, partnerY: 1058, partnerSize: 86, dateY: 1146, handleY: 1210, makeY: 1254 }
   };
 
   var state = { format: 'story', photos: { a: null, b: null } };
@@ -140,6 +140,24 @@
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
   }
 
+  // corner index (rank + suit) drawn twice, the second rotated like a real card
+  function drawIndex(o, ink, halo) {
+    var w = o.w, h = o.h;
+    var s1 = Math.round(w * 0.19), s2 = Math.round(w * 0.15);
+    var x0 = -w / 2 + w * 0.13, y0 = -h / 2 + w * 0.23;
+    [0, Math.PI].forEach(function (rot) {
+      ctx.save(); ctx.rotate(rot);
+      ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+      ctx.font = '900 ' + s1 + 'px "Playfair Display", serif';
+      if (halo) { ctx.lineWidth = w * 0.05; ctx.strokeStyle = halo; ctx.strokeText('A', x0, y0); }
+      ctx.fillStyle = ink; ctx.fillText('A', x0, y0);
+      ctx.font = '900 ' + s2 + 'px "Playfair Display", serif';
+      if (halo) { ctx.lineWidth = w * 0.05; ctx.strokeStyle = halo; ctx.strokeText(o.glyph, x0, y0 + s2 * 1.05); }
+      ctx.fillStyle = ink; ctx.fillText(o.glyph, x0, y0 + s2 * 1.05);
+      ctx.restore();
+    });
+  }
+
   function drawCard(o) {
     var w = o.w, h = o.h;
     ctx.save();
@@ -150,27 +168,43 @@
     ctx.shadowColor = 'transparent';
 
     var ink = o.red ? '#c1121f' : '#16090b';
-    var s1 = Math.round(w * 0.19), s2 = Math.round(w * 0.15);
-    ctx.fillStyle = ink; ctx.textAlign = 'center';
-    ctx.font = '900 ' + s1 + 'px "Playfair Display", serif';
-    ctx.fillText('A', -w / 2 + w * 0.12, -h / 2 + w * 0.2);
-    ctx.font = '900 ' + s2 + 'px "Playfair Display", serif';
-    ctx.fillText(o.glyph, -w / 2 + w * 0.12, -h / 2 + w * 0.2 + s2 * 1.05);
-    ctx.save(); ctx.rotate(Math.PI);
-    ctx.font = '900 ' + s1 + 'px "Playfair Display", serif';
-    ctx.fillText('A', -w / 2 + w * 0.12, -h / 2 + w * 0.2);
-    ctx.font = '900 ' + s2 + 'px "Playfair Display", serif';
-    ctx.fillText(o.glyph, -w / 2 + w * 0.12, -h / 2 + w * 0.2 + s2 * 1.05);
-    ctx.restore();
-
-    drawPhotoOrInitial(0, -h * 0.07, w * 0.315, o.photo, o.initial);
-
     var name = o.name || o.placeholder;
-    var size = fitFont(ctx, name, 900, '"Playfair Display", serif', Math.round(w * 0.2), w * 0.74);
-    ctx.font = '900 ' + size + 'px "Playfair Display", serif';
-    ctx.fillStyle = o.name ? ink : 'rgba(22,9,11,.4)';
-    ctx.textAlign = 'center';
-    ctx.fillText(name, 0, h * 0.355);
+
+    if (o.photo) {
+      // the photo fills the whole card, inside a thin ivory border
+      var pad = w * 0.035, iw = w - pad * 2, ih = h - pad * 2, ph = o.photo;
+      var k = Math.max(iw / ph.width, ih / ph.height);
+      var sw = iw / k, sh = ih / k;
+      var sx = (ph.width - sw) / 2, sy = (ph.height - sh) * 0.3;
+      ctx.save();
+      rr(ctx, -iw / 2, -ih / 2, iw, ih, w * 0.05); ctx.clip();
+      ctx.drawImage(ph, sx, sy, sw, sh, -iw / 2, -ih / 2, iw, ih);
+      var top = ctx.createLinearGradient(0, -ih / 2, 0, -ih / 2 + ih * 0.22);
+      top.addColorStop(0, 'rgba(10,2,4,.38)'); top.addColorStop(1, 'rgba(10,2,4,0)');
+      ctx.fillStyle = top; ctx.fillRect(-iw / 2, -ih / 2, iw, ih * 0.22);
+      var bot = ctx.createLinearGradient(0, ih / 2 - ih * 0.3, 0, ih / 2);
+      bot.addColorStop(0, 'rgba(10,2,4,0)'); bot.addColorStop(1, 'rgba(10,2,4,.85)');
+      ctx.fillStyle = bot; ctx.fillRect(-iw / 2, ih / 2 - ih * 0.3, iw, ih * 0.3);
+      ctx.restore();
+
+      drawIndex(o, ink, '#f7ecd8');
+
+      var fs = fitFont(ctx, name, 900, '"Playfair Display", serif', Math.round(w * 0.17), w * 0.5);
+      ctx.font = '900 ' + fs + 'px "Playfair Display", serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,.7)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
+      ctx.fillStyle = o.name ? '#f7ecd8' : 'rgba(247,236,216,.6)';
+      ctx.fillText(name, 0, h * 0.4);
+      ctx.shadowColor = 'transparent';
+    } else {
+      drawIndex(o, ink, null);
+      drawPhotoOrInitial(0, -h * 0.07, w * 0.315, null, o.initial);
+      var size = fitFont(ctx, name, 900, '"Playfair Display", serif', Math.round(w * 0.2), w * 0.74);
+      ctx.font = '900 ' + size + 'px "Playfair Display", serif';
+      ctx.fillStyle = o.name ? ink : 'rgba(22,9,11,.4)';
+      ctx.textAlign = 'center';
+      ctx.fillText(name, 0, h * 0.355);
+    }
     ctx.restore();
   }
 
@@ -188,18 +222,13 @@
       ctx.fillText('Pocket Rockkets', W / 2, L.logoY + 180);
     }
 
-    // headline
-    var hs = L.headSize, hy = L.headY;
-    ctx.font = '700 ' + hs + 'px "Oleo Script", cursive';
-    ctx.lineJoin = 'round'; ctx.lineWidth = hs * 0.15; ctx.strokeStyle = '#d9a23a';
-    ctx.strokeText('Pocket rockets!', W / 2, hy);
-    ctx.fillStyle = chrome(ctx, hy - hs, hy);
-    ctx.fillText('Pocket rockets!', W / 2, hy);
-
-    ctx.fillStyle = '#f7ecd8';
-    ctx.font = '500 ' + L.tagSize + 'px "Bricolage Grotesque", sans-serif';
-    ctx.fillText('One gamble. Two friends.', W / 2, L.tagY);
-    ctx.fillText('A chance to rewrite their destiny.', W / 2, L.tagY + L.tagSize * 1.5);
+    // the line between the friends and the release date
+    var ps = fitFont(ctx, 'My A-Game partner!', 700, '"Oleo Script", cursive', L.partnerSize, 840);
+    ctx.font = '700 ' + ps + 'px "Oleo Script", cursive';
+    ctx.lineJoin = 'round'; ctx.lineWidth = ps * 0.15; ctx.strokeStyle = '#d9a23a';
+    ctx.strokeText('My A-Game partner!', W / 2, L.partnerY);
+    ctx.fillStyle = chrome(ctx, L.partnerY - ps, L.partnerY);
+    ctx.fillText('My A-Game partner!', W / 2, L.partnerY);
 
     ctx.fillStyle = '#e9b949';
     ctx.font = '700 ' + Math.round(L.tagSize * 1.9) + 'px "Oleo Script", cursive';
@@ -231,7 +260,7 @@
     glow.addColorStop(0, 'rgba(233,185,73,.28)'); glow.addColorStop(1, 'rgba(233,185,73,0)');
     ctx.fillStyle = glow; ctx.fillRect(0, 0, W, L.H);
 
-    var off = L.cardW * 0.58;
+    var off = L.cardW * 0.55;
     drawCard({ cx: W / 2 - off, cy: L.cardCY + 8, w: L.cardW, h: L.cardH, rot: -8, red: false, glyph: '♠',
                name: a, placeholder: 'Your name', initial: initialOf(a, '?'), photo: state.photos.a });
     drawCard({ cx: W / 2 + off, cy: L.cardCY - 8, w: L.cardW, h: L.cardH, rot: 8, red: true, glyph: '♥',
