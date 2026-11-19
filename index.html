@@ -27,6 +27,7 @@
     <nav class="nav-links" aria-label="Main">
       <a href="#teaser">Teaser</a>
       <a href="#play">Try your luck</a>
+      <a href="#poster">Make a poster</a>
       <a href="#instagram">Instagram</a>
       <a href="#crew">Cast and crew</a>
     </nav>
@@ -141,6 +142,60 @@
       <p class="odds">Every deal is a fresh shuffle of all 52 cards. Your chance of pocket rockets is 1 in 221, about 0.45%.</p>
     </section>
 
+    <!-- POSTER MAKER -->
+    <section class="band maker" id="poster" aria-labelledby="poster-title">
+      <div class="band-head">
+        <h2 class="h-chrome" id="poster-title">Make your jackpot poster</h2>
+        <p class="lede">Every pair of friends is a pair of pocket rockets. Add two names and two photos, save the poster and post it. Your photos stay on your phone and are never uploaded.</p>
+      </div>
+
+      <div class="maker-grid">
+        <form class="maker-form" onsubmit="return false" autocomplete="off">
+          <fieldset class="friend">
+            <legend>First friend</legend>
+            <label class="field" for="nameA"><span>Name</span>
+              <input id="nameA" type="text" maxlength="16" placeholder="Anji" enterkeyhint="next">
+            </label>
+            <div class="photo-pick">
+              <img id="thumbA" class="thumb" alt="Photo of the first friend" hidden>
+              <label class="btn btn-ghost btn-sm" for="photoA">Add a photo</label>
+              <input id="photoA" class="sr" type="file" accept="image/*">
+              <button class="linkbtn" id="clearA" type="button" hidden>Remove photo</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="friend">
+            <legend>Second friend</legend>
+            <label class="field" for="nameB"><span>Name</span>
+              <input id="nameB" type="text" maxlength="16" placeholder="Yesu" enterkeyhint="done">
+            </label>
+            <div class="photo-pick">
+              <img id="thumbB" class="thumb" alt="Photo of the second friend" hidden>
+              <label class="btn btn-ghost btn-sm" for="photoB">Add a photo</label>
+              <input id="photoB" class="sr" type="file" accept="image/*">
+              <button class="linkbtn" id="clearB" type="button" hidden>Remove photo</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="formats">
+            <legend>Shape</legend>
+            <label class="seg"><input type="radio" name="posterFormat" value="story" checked><span>Story (9:16)</span></label>
+            <label class="seg"><input type="radio" name="posterFormat" value="feed"><span>Post (4:5)</span></label>
+          </fieldset>
+
+          <div class="maker-actions">
+            <button class="btn btn-gold" id="posterDl" type="button" disabled>Save poster</button>
+            <button class="btn btn-ghost" id="posterShare" type="button" hidden>Share</button>
+          </div>
+          <p class="maker-note" id="posterNote" role="status" aria-live="polite">Add both names to unlock the download.</p>
+        </form>
+
+        <div class="poster-stage">
+          <canvas id="posterCanvas" width="1080" height="1920" data-format="story" role="img" aria-label="Pocket Rockkets poster preview"></canvas>
+        </div>
+      </div>
+    </section>
+
     <!-- INSTAGRAM -->
     <section class="band insta" id="instagram" aria-labelledby="insta-title">
       <div class="band-head">
@@ -237,5 +292,6 @@
 
   <script src="main.js"></script>
   <script src="game.js"></script>
+  <script src="poster.js"></script>
 </body>
 </html>
