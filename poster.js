@@ -19,10 +19,10 @@
 
   var W = 1080;
   var LAYOUTS = {
-    story: { H: 1920, logoW: 780, logoY: 110, cardW: 410, cardH: 574, cardCY: 1115, wheelCY: 1030,
-             tagSize: 38, partnerY: 1565, partnerSize: 112, dateY: 1690, handleY: 1762, makeY: 1812 },
-    feed:  { H: 1350, logoW: 520, logoY: 92, cardW: 336, cardH: 470, cardCY: 702, wheelCY: 700,
-             tagSize: 30, partnerY: 1058, partnerSize: 86, dateY: 1146, handleY: 1210, makeY: 1254 }
+    story: { H: 1920, logoW: 780, logoY: 110, cardW: 420, cardH: 588, cardCY: 1075, wheelCY: 1000,
+             tagSize: 38, partnerY: 672, partnerSize: 86, dateY: 1610, handleY: 1712, makeY: 1766 },
+    feed:  { H: 1350, logoW: 520, logoY: 92, cardW: 336, cardH: 470, cardCY: 762, wheelCY: 710,
+             tagSize: 30, partnerY: 474, partnerSize: 62, dateY: 1140, handleY: 1214, makeY: 1260 }
   };
 
   var state = { format: 'story', photos: { a: null, b: null } };
@@ -222,17 +222,26 @@
       ctx.fillText('Pocket Rockkets', W / 2, L.logoY + 180);
     }
 
-    // the line between the friends and the release date
-    var ps = fitFont(ctx, 'My A-Game partner!', 700, '"Oleo Script", cursive', L.partnerSize, 840);
-    ctx.font = '700 ' + ps + 'px "Oleo Script", cursive';
-    ctx.lineJoin = 'round'; ctx.lineWidth = ps * 0.15; ctx.strokeStyle = '#d9a23a';
-    ctx.strokeText('My A-Game partner!', W / 2, L.partnerY);
-    ctx.fillStyle = chrome(ctx, L.partnerY - ps, L.partnerY);
-    ctx.fillText('My A-Game partner!', W / 2, L.partnerY);
+    // line under the logo: plain white sans so it reads on any screen
+    var line = 'My A-Game Partner';
+    var ps = fitFont(ctx, line, 700, '"Bricolage Grotesque", sans-serif', L.partnerSize, 820);
+    ctx.font = '700 ' + ps + 'px "Bricolage Grotesque", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
+    ctx.fillText(line, W / 2, L.partnerY);
+    ctx.shadowColor = 'transparent';
 
-    ctx.fillStyle = '#e9b949';
-    ctx.font = '700 ' + Math.round(L.tagSize * 1.9) + 'px "Oleo Script", cursive';
-    ctx.fillText('In cinemas Dec 11', W / 2, L.dateY);
+    // release date in a pill at the bottom
+    var dateText = 'In cinemas Dec 11';
+    var ds = Math.round(L.tagSize * 1.5);
+    ctx.font = '700 ' + ds + 'px "Bricolage Grotesque", sans-serif';
+    var dw = ctx.measureText(dateText).width + ds * 1.6, dh = ds * 1.9;
+    rr(ctx, (W - dw) / 2, L.dateY - dh / 2, dw, dh, dh / 2);
+    ctx.fillStyle = 'rgba(10,2,4,.7)'; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#e9b949'; ctx.stroke();
+    ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle';
+    ctx.fillText(dateText, W / 2, L.dateY + ds * 0.04);
+    ctx.textBaseline = 'alphabetic';
 
     ctx.fillStyle = '#f7ecd8';
     ctx.font = '700 ' + Math.round(L.tagSize * 0.9) + 'px "Bricolage Grotesque", sans-serif';
@@ -260,7 +269,7 @@
     glow.addColorStop(0, 'rgba(233,185,73,.28)'); glow.addColorStop(1, 'rgba(233,185,73,0)');
     ctx.fillStyle = glow; ctx.fillRect(0, 0, W, L.H);
 
-    var off = L.cardW * 0.55;
+    var off = L.cardW * 0.54;
     drawCard({ cx: W / 2 - off, cy: L.cardCY + 8, w: L.cardW, h: L.cardH, rot: -8, red: false, glyph: '♠',
                name: a, placeholder: 'Your name', initial: initialOf(a, '?'), photo: state.photos.a });
     drawCard({ cx: W / 2 + off, cy: L.cardCY - 8, w: L.cardW, h: L.cardH, rot: 8, red: true, glyph: '♥',
