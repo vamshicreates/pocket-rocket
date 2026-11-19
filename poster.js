@@ -20,9 +20,9 @@
   var W = 1080;
   var LAYOUTS = {
     story: { H: 1920, logoW: 780, logoY: 110, cardW: 420, cardH: 588, cardCY: 1075, wheelCY: 1000,
-             tagSize: 38, partnerY: 672, partnerSize: 86, dateY: 1610, handleY: 1712, makeY: 1766 },
+             partnerY: 676, partnerSize: 84, handleY: 1590, dateY: 1672, makeY: 1776 },
     feed:  { H: 1350, logoW: 520, logoY: 92, cardW: 336, cardH: 470, cardCY: 762, wheelCY: 710,
-             tagSize: 30, partnerY: 474, partnerSize: 62, dateY: 1140, handleY: 1214, makeY: 1260 }
+             partnerY: 476, partnerSize: 60, handleY: 1098, dateY: 1166, makeY: 1262 }
   };
 
   var state = { format: 'story', photos: { a: null, b: null } };
@@ -148,11 +148,12 @@
     [0, Math.PI].forEach(function (rot) {
       ctx.save(); ctx.rotate(rot);
       ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+      if (halo) { ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = w * 0.03; ctx.shadowOffsetY = 2; }
       ctx.font = '900 ' + s1 + 'px "Playfair Display", serif';
-      if (halo) { ctx.lineWidth = w * 0.05; ctx.strokeStyle = halo; ctx.strokeText('A', x0, y0); }
+      if (halo) { ctx.lineWidth = w * 0.01; ctx.strokeStyle = halo; ctx.strokeText('A', x0, y0); }
       ctx.fillStyle = ink; ctx.fillText('A', x0, y0);
       ctx.font = '900 ' + s2 + 'px "Playfair Display", serif';
-      if (halo) { ctx.lineWidth = w * 0.05; ctx.strokeStyle = halo; ctx.strokeText(o.glyph, x0, y0 + s2 * 1.05); }
+      if (halo) { ctx.lineWidth = w * 0.01; ctx.strokeStyle = halo; ctx.strokeText(o.glyph, x0, y0 + s2 * 1.05); }
       ctx.fillStyle = ink; ctx.fillText(o.glyph, x0, y0 + s2 * 1.05);
       ctx.restore();
     });
@@ -187,7 +188,8 @@
       ctx.fillStyle = bot; ctx.fillRect(-iw / 2, ih / 2 - ih * 0.3, iw, ih * 0.3);
       ctx.restore();
 
-      drawIndex(o, ink, '#f7ecd8');
+      // black suit turns ivory on a photo so it never disappears into dark areas
+      drawIndex(o, o.red ? ink : '#f7ecd8', o.red ? '#f7ecd8' : '#16090b');
 
       var fs = fitFont(ctx, name, 900, '"Playfair Display", serif', Math.round(w * 0.17), w * 0.5);
       ctx.font = '900 ' + fs + 'px "Playfair Display", serif';
@@ -222,32 +224,38 @@
       ctx.fillText('Pocket Rockkets', W / 2, L.logoY + 180);
     }
 
-    // line under the logo: plain white sans so it reads on any screen
+    // classic silver lettering, thin weight
+    var silver = function (text, y, size, weight, family, spacing) {
+      ctx.font = weight + ' ' + size + 'px ' + family;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = spacing || '0px';
+      ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = size * 0.2; ctx.shadowOffsetY = size * 0.05;
+      ctx.fillStyle = chrome(ctx, y - size * 0.8, y + size * 0.1);
+      ctx.fillText(text, W / 2, y);
+      ctx.shadowColor = 'transparent';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    };
+    var serif = '"Playfair Display", Georgia, serif';
+
     var line = 'My A-Game Partner';
-    var ps = fitFont(ctx, line, 700, '"Bricolage Grotesque", sans-serif', L.partnerSize, 820);
-    ctx.font = '700 ' + ps + 'px "Bricolage Grotesque", sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
-    ctx.fillText(line, W / 2, L.partnerY);
-    ctx.shadowColor = 'transparent';
+    var ps = fitFont(ctx, line, 700, serif, L.partnerSize, 820);
+    silver(line, L.partnerY, ps, 700, serif, '1px');
 
-    // release date in a pill at the bottom
-    var dateText = 'In cinemas Dec 11';
-    var ds = Math.round(L.tagSize * 1.5);
-    ctx.font = '700 ' + ds + 'px "Bricolage Grotesque", sans-serif';
-    var dw = ctx.measureText(dateText).width + ds * 1.6, dh = ds * 1.9;
-    rr(ctx, (W - dw) / 2, L.dateY - dh / 2, dw, dh, dh / 2);
-    ctx.fillStyle = 'rgba(10,2,4,.7)'; ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = '#e9b949'; ctx.stroke();
-    ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle';
-    ctx.fillText(dateText, W / 2, L.dateY + ds * 0.04);
-    ctx.textBaseline = 'alphabetic';
+    // handle above the release date
+    silver('@pocketrockkets', L.handleY, Math.round(L.partnerSize * 0.5), 700, serif, '2px');
 
-    ctx.fillStyle = '#f7ecd8';
-    ctx.font = '700 ' + Math.round(L.tagSize * 0.9) + 'px "Bricolage Grotesque", sans-serif';
-    ctx.fillText('@pocketrockkets', W / 2, L.handleY);
+    // thin gold rules either side of the date
+    var ds = Math.round(L.partnerSize * 0.78);
+    ctx.font = '700 ' + ds + 'px ' + serif;
+    var tw = ctx.measureText('In cinemas Dec 11').width;
+    ctx.strokeStyle = 'rgba(233,185,73,.8)'; ctx.lineWidth = 2;
+    [[-1, 1], [1, 1]].forEach(function (d) {
+      var x0 = W / 2 + d[0] * (tw / 2 + 34), x1 = W / 2 + d[0] * (tw / 2 + 34 + 90);
+      ctx.beginPath(); ctx.moveTo(x0, L.dateY - ds * 0.3); ctx.lineTo(x1, L.dateY - ds * 0.3); ctx.stroke();
+    });
+    silver('In cinemas Dec 11', L.dateY, ds, 700, serif, '1px');
+
     ctx.fillStyle = '#c9a99a';
-    ctx.font = '500 ' + Math.round(L.tagSize * 0.8) + 'px "Bricolage Grotesque", sans-serif';
+    ctx.font = '500 ' + Math.round(L.partnerSize * 0.36) + 'px "Bricolage Grotesque", sans-serif';
     ctx.fillText('Make yours at ' + (location.host || 'pocket-rocket-eight.vercel.app'), W / 2, L.makeY);
   }
 
